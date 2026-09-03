@@ -1,41 +1,37 @@
 import { NextRequest, NextResponse } from "next/server";
+import { ADMIN_COOKIE_NAME, deriveSessionToken, safeEqual } from "@/lib/adminAuth";
 
-// 管理画面(/admin)とその裏側のAPI(/api/admin)を、簡易パスワード(Basic認証)で保護する。
-// テスターの感想などが誰でも見られる状態にならないための最低限のガード。
-// ADMIN_USER / ADMIN_PASSWORD が未設定の間は、管理画面自体が使えないよう安全側に倒す。
+// 管理画面(/admin)とその裏側のAPI(/api/admin)を、ログイン画面+Cookieで保護する。
+// ブラウザ標準のBasic認証ポップアップはスマホやアプリ内ブラウザで表示されないことがあるため、
+// どの端末でも確実に開ける通常のログインフォーム方式にしている。
 
-function unauthorized() {
-  return new NextResponse("認証が必要です", {
-    status: 401,
-    headers: { "WWW-Authenticate": 'Basic realm="Sales Compass Admin"' },
-  });
+/** ログイン画面とログインAPIは、認証チェックの対象外にする(そうしないとログインできなくなる) */
+function isPublicAdminPath(pathname: string): boolean {
+  return pathname === "/admin/login" || pathname === "/api/admin/login";
 }
 
-export function middleware(req: NextRequest) {
-  const adminUser = process.env.ADMIN_USER;
+export async function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl;
+  if (isPublicAdminPath(pathname)) return NextResponse.next();
+
   const adminPassword = process.env.ADMIN_PASSWORD;
-
-  if (!adminUser || !adminPassword) {
-    return new NextResponse("管理画面はまだ準備中です(ADMIN_USER / ADMIN_PASSWORD 未設定)。", {
-      status: 503,
-    });
+  if (!adminPassword) {
+    return new NextResponse("管理画面はまだ準備中です(ADMIN_PASSWORD 未設定)。", { status: 503 });
   }
 
-  const authHeader = req.headers.get("authorization");
-  if (!authHeader || !authHeader.startsWith("Basic ")) {
-    return unauthorized();
+  const cookie = req.cookies.get(ADMIN_COOKIE_NAME)?.value ?? "";
+  const expected = await deriveSessionToken(adminPassword);
+
+  if (safeEqual(cookie, expected)) return NextResponse.next();
+
+  // APIへの未認証アクセスは、リダイレクトではなく401で返す
+  if (pathname.startsWith("/api/")) {
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
-  const decoded = Buffer.from(authHeader.slice("Basic ".length), "base64").toString("utf-8");
-  const separatorIndex = decoded.indexOf(":");
-  const user = separatorIndex === -1 ? decoded : decoded.slice(0, separatorIndex);
-  const password = separatorIndex === -1 ? "" : decoded.slice(separatorIndex + 1);
-
-  if (user !== adminUser || password !== adminPassword) {
-    return unauthorized();
-  }
-
-  return NextResponse.next();
+  const loginUrl = new URL("/admin/login", req.url);
+  loginUrl.searchParams.set("next", pathname);
+  return NextResponse.redirect(loginUrl);
 }
 
 export const config = {
