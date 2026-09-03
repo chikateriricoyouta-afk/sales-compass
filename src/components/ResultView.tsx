@@ -14,7 +14,8 @@ import { getNextActions } from "@/lib/feedback/nextActions";
 import { getAbilityComboFeedback } from "@/lib/feedback/abilityCombos";
 import { GROWTH_GOAL_PHRASE } from "@/lib/feedback/growthFocus";
 import { CUSTOMER_TYPE_AFFINITY, CUSTOMER_TYPE_LABELS, type CustomerTypeCard } from "@/lib/feedback/customerTypes";
-import { ABILITY_KEYS, ABILITY_LABELS, levelOf, type DiagnosisResult } from "@/lib/types";
+import { SaveTestResultForm } from "./SaveTestResultForm";
+import { ABILITY_KEYS, ABILITY_LABELS, levelOf, type Answers, type DiagnosisResult } from "@/lib/types";
 
 function Section({ title, children }: { title: React.ReactNode; children: React.ReactNode }) {
   return (
@@ -107,9 +108,12 @@ function CustomerCard({ card, rank }: { card: CustomerTypeCard; rank?: 0 | 1 | 2
 
 export function ResultView({
   result,
+  answers,
   onRestart,
 }: {
   result: DiagnosisResult;
+  /** テスト結果保存機能用。48問の回答そのもの(未指定なら保存フォームは表示しない) */
+  answers?: Answers;
   onRestart: () => void;
 }) {
   const { profile, abilityScores, overallScore, typeResult } = result;
@@ -121,6 +125,7 @@ export function ResultView({
   const lowestAbility = ascending[0];
   const highestAbility = descending[0];
   const top3Abilities = descending.slice(0, 3);
+  const top3GrowthAbilities = ascending.slice(0, 3);
 
   const missedOpportunity = getMissedOpportunityComment(typeResult.mainType, lowestAbility);
   const nextActions = getNextActions(ascending);
@@ -379,6 +384,21 @@ export function ResultView({
             3か月後にもう一度診断する
           </SecondaryButton>
         </section>
+
+        {answers && (
+          <Section title="テストにご協力いただける方へ">
+            <SaveTestResultForm
+              profile={profile}
+              answers={answers}
+              abilityScores={abilityScores}
+              mainType={typeResult.mainType}
+              subType={typeResult.subType}
+              overallScore={overallScore}
+              topStrengths={top3Abilities}
+              topGrowth={top3GrowthAbilities}
+            />
+          </Section>
+        )}
 
         <InfoBox className="mx-auto mt-10 max-w-lg">
           本診断は自己回答をもとにした営業行動傾向を可視化するものです。特定の顧客への適性、営業成果、成約を保証するものではありません。

@@ -16,15 +16,17 @@ export function SalesCompassApp() {
   const [step, setStep] = useState<Step>("intro");
   const [profile, setProfile] = useState<Profile | null>(null);
   const [result, setResult] = useState<DiagnosisResult | null>(null);
+  const [answers, setAnswers] = useState<Answers | null>(null);
 
   function handleProfileSubmit(p: Profile) {
     setProfile(p);
     setStep("quiz");
   }
 
-  function handleQuizComplete(answers: Answers) {
+  function handleQuizComplete(quizAnswers: Answers) {
     if (!profile) return;
-    const diagnosis = computeDiagnosis(answers);
+    const diagnosis = computeDiagnosis(quizAnswers);
+    setAnswers(quizAnswers);
     setResult({ profile, ...diagnosis });
     setStep("transition");
   }
@@ -32,6 +34,7 @@ export function SalesCompassApp() {
   function handleDemo() {
     const diagnosis = computeDiagnosis(DEMO_ANSWERS);
     setProfile(DEMO_PROFILE);
+    setAnswers(DEMO_ANSWERS);
     setResult({ profile: DEMO_PROFILE, ...diagnosis });
     setStep("result");
   }
@@ -39,6 +42,7 @@ export function SalesCompassApp() {
   function handleRestart() {
     setProfile(null);
     setResult(null);
+    setAnswers(null);
     setStep("intro");
   }
 
@@ -55,7 +59,7 @@ export function SalesCompassApp() {
     return <DiagnosisTransition onContinue={() => setStep("result")} />;
   }
   if (step === "result" && result) {
-    return <ResultView result={result} onRestart={handleRestart} />;
+    return <ResultView result={result} answers={answers ?? undefined} onRestart={handleRestart} />;
   }
   return null;
 }
