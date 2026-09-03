@@ -14,6 +14,7 @@ import {
 import { SALES_TYPES } from "@/lib/salesTypes";
 import { QUESTIONS } from "@/lib/questions";
 import { ABILITY_LABELS } from "@/lib/types";
+import { DeleteTestResultButton } from "@/components/DeleteTestResultButton";
 
 export const dynamic = "force-dynamic";
 
@@ -90,6 +91,8 @@ export default async function AdminTestDetailPage({ params }: { params: Promise<
           ))}
         </ol>
       </Section>
+
+      <DeleteTestResultButton id={row.id} nickname={row.nickname} />
     </main>
   );
 }

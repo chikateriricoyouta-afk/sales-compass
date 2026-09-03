@@ -2,7 +2,11 @@ import Link from "next/link";
 import { listTestResults } from "@/lib/testResults/db";
 import { isTestResultsStorageConfigured } from "@/lib/testResults/supabaseAdmin";
 import { summarizeTestResults } from "@/lib/testResults/summary";
-import { LENGTH_RATING_LABEL } from "@/lib/testResults/labels";
+import {
+  LENGTH_RATING_LABEL,
+  TRI_STATE_LABEL,
+  WILLINGNESS_LABEL,
+} from "@/lib/testResults/labels";
 import { SALES_TYPES, SALES_TYPE_ORDER } from "@/lib/salesTypes";
 import { ABILITY_LABELS } from "@/lib/types";
 
@@ -105,8 +109,8 @@ export default async function AdminTestsPage() {
                 <td className="py-2 pr-4">{row.overallScore}</td>
                 <td className="py-2 pr-4">{row.accuracyRating} / 5</td>
                 <td className="py-2 pr-4">{LENGTH_RATING_LABEL[row.lengthRating]}</td>
-                <td className="py-2 pr-4">{row.recommendColleague}</td>
-                <td className="py-2 pr-4">{row.willingnessToPay}</td>
+                <td className="py-2 pr-4">{TRI_STATE_LABEL[row.recommendColleague]}</td>
+                <td className="py-2 pr-4">{WILLINGNESS_LABEL[row.willingnessToPay]}</td>
               </tr>
             ))}
           </tbody>

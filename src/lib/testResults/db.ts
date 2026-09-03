@@ -79,6 +79,12 @@ export async function listTestResults(): Promise<TestResultRow[]> {
   return (data ?? []).map(fromDbRow);
 }
 
+export async function deleteTestResult(id: string): Promise<void> {
+  const supabase = getSupabaseAdmin();
+  const { error } = await supabase.from(TEST_RESULTS_TABLE).delete().eq("id", id);
+  if (error) throw new Error(error.message);
+}
+
 export async function getTestResult(id: string): Promise<TestResultRow | null> {
   const supabase = getSupabaseAdmin();
   const { data, error } = await supabase
