@@ -7,7 +7,7 @@ import { CharacterAvatar, HeroCharacter } from "./CharacterAvatar";
 import { TypesShowcase } from "./TypesShowcase";
 import { PageShell, PageCard, InfoBox } from "./PageCard";
 import { GradientButton, SecondaryButton } from "./Button";
-import { IconTarget, IconStar, IconMessage, IconHandshake, IconInfo, IconArrowRight } from "./Icons";
+import { IconTarget, IconStar, IconMessage, IconHandshake, IconInfo, IconArrowRight, IconBulb } from "./Icons";
 import { SALES_TYPES } from "@/lib/salesTypes";
 import { abilitiesSortedAscending, abilitiesSortedDescending } from "@/lib/scoring";
 import { INSURANCE_INDIVIDUAL_FEEDBACK } from "@/lib/feedback/insuranceIndividual";
@@ -233,10 +233,14 @@ export function ResultView({
             </p>
           </SummaryBlock>
 
-          {/* ④ 次に何をするか */}
+          {/* ④ 次に何をするか(「話す前に考えること」→「言うこと」の2段構成) */}
           <SummaryBlock label="行動" title="次の商談で、まずこれだけ" accent="purple">
-            <p className="text-base font-semibold leading-relaxed text-slate-900">{firstAction.action}</p>
-            <p className="mt-3 flex items-center gap-1.5 text-sm font-bold text-purple-700">
+            <p className="flex items-center gap-1.5 text-sm font-bold text-purple-700">
+              <IconBulb className="h-4 w-4" /> 話す前に考えること
+            </p>
+            <p className="mt-1.5 text-base font-semibold leading-relaxed text-slate-900">{firstAction.think}</p>
+
+            <p className="mt-4 flex items-center gap-1.5 text-sm font-bold text-purple-700">
               <IconMessage className="h-4 w-4" /> そのまま使える一言
             </p>
             <p className="mt-1.5 rounded-xl border-2 border-purple-200 bg-white px-4 py-3.5 text-lg font-bold leading-relaxed text-slate-900 shadow-sm">
@@ -407,7 +411,13 @@ export function ResultView({
                     </span>
                     <div className="min-w-0">
                       <p className="text-sm font-bold text-indigo-600">{action.heading}</p>
-                      <p className="mt-1 text-base text-slate-800">{action.action}</p>
+                      <div className="mt-2 rounded-lg border border-indigo-100 bg-indigo-50/60 px-3.5 py-2.5">
+                        <p className="flex items-center gap-1.5 text-sm font-bold text-indigo-700">
+                          <IconBulb className="h-4 w-4" /> 話す前に考えること
+                        </p>
+                        <p className="mt-1 text-base leading-relaxed text-slate-800">{action.think}</p>
+                      </div>
+                      <p className="mt-2 text-base text-slate-800">{action.action}</p>
                       <div className="mt-2 space-y-1.5">
                         {action.scripts.map((s) => (
                           <p
