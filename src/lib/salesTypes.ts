@@ -118,13 +118,12 @@ export const SALES_TYPES: Record<SalesTypeId, SalesTypeDef> = {
       text: "text-orange-700",
       ring: "ring-orange-100",
     },
-    computeScore: (a) => {
-      const values = Object.values(a) as number[];
-      const max = Math.max(...values);
-      const min = Math.min(...values);
-      const bonusEligible = a.adaptability >= 75 && max - min <= 25;
-      return bonusEligible ? a.adaptability + 5 : a.adaptability;
-    },
+    // 他の5タイプは「2〜3能力の平均」なのに対し、以前ここだけ「適応力1つ+バランス加点」だった。
+    // 1能力だけだと値の振れ幅が大きく最高得点になりやすいうえ、加点も乗るため、
+    // シミュレーション上37%がこのタイプに判定されていた(他タイプは11〜15%)。
+    // 他タイプと同じ「2能力の平均」に揃え、加点を廃止して偏りを解消している(最多22.7%)。
+    // 「相手に合わせて、選択肢を示して一緒に考える」タイプなので、適応力と提案設計力を使う。
+    computeScore: (a) => (a.adaptability + a.proposalDesign) / 2,
   },
 };
 
