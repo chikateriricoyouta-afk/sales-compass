@@ -75,9 +75,30 @@ export function computeDiagnosis(answers: Answers) {
   return { abilityScores, overallScore, typeResult };
 }
 
-/** 能力スコアが低い順に並べたキーの配列 */
+/**
+ * 同点だったときに「先に伸ばすべき能力」を決める固定の優先順位(営業成果への影響が大きい順)。
+ * これがないと、全能力が同点のユーザーに対して「自分で選んでください」という
+ * 結論のないフィードバックになってしまうため、必ず1つに絞れるようにしている。
+ * ※スコア計算・タイプ判定には一切影響しない(同点時の表示順だけを決める)。
+ */
+const GROWTH_PRIORITY: AbilityKey[] = [
+  "decisionSupport", // 成約の可否に直結する
+  "problemFinding", // 提案がずれていたら他が全て無駄になる
+  "listening", // すべての情報の入口
+  "proposalDesign", // 聞いた内容を提案に変える
+  "customerOrientation", // 長期的な信頼
+  "relationship", // 商談の入口
+  "adaptability", // 精度を上げる
+  "actionImprovement", // 積み重なって効く
+];
+
+/** 能力スコアが低い順に並べたキーの配列(同点は成果影響の大きい能力を先にする) */
 export function abilitiesSortedAscending(abilityScores: AbilityScores): AbilityKey[] {
-  return [...ABILITY_KEYS].sort((a, b) => abilityScores[a] - abilityScores[b]);
+  return [...ABILITY_KEYS].sort((a, b) => {
+    const diff = abilityScores[a] - abilityScores[b];
+    if (diff !== 0) return diff;
+    return GROWTH_PRIORITY.indexOf(a) - GROWTH_PRIORITY.indexOf(b);
+  });
 }
 
 /** 能力スコアが高い順に並べたキーの配列 */

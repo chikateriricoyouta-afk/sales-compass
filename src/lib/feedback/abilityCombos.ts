@@ -37,8 +37,10 @@ const GENERIC_COMBO_TEMPLATE = (highLabel: string, lowLabel: string) =>
   `${highLabel}が強みである一方、${lowLabel}にはまだ伸びしろがあります。${highLabel}はすでにあなたの武器なので、無理に変える必要はありません。その武器を土台にしながら、${lowLabel}を意識的に使う場面を一つ増やしてみましょう。`;
 
 export function getAbilityComboFeedback(strongAbility: AbilityKey, growthAbility: AbilityKey): string {
+  // 全能力が同点の場合の保険。ここでも「自分で選んでください」で終わらせず、
+  // 必ず1つの行動に絞って提示する(通常は scoring.ts の同点優先順位で別々の能力になる)。
   if (strongAbility === growthAbility) {
-    return `${ABILITY_LABELS[strongAbility]}は、あなたの中で突出して高くも低くもなく、全体的にバランスの取れた状態です。まずは他の能力とのバランスを見ながら、次に伸ばしたい能力を選んでみましょう。`;
+    return `現時点では、どの能力も突出して高くも低くもないバランス型です。この状態から一番成果が変わるのは、商談の最後です。次の商談では「検討します」で終わらせず、引っかかっている点を一つだけ確認することから始めてください。`;
   }
   const key: ComboKey = `${strongAbility}:${growthAbility}`;
   return (
